@@ -1,0 +1,32 @@
+networks:
+  backend:
+
+services:
+  mongo:
+    image: mongo
+    container_name: mongo-data
+    restart: always
+    networks:
+      - backend
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=AzureDiamond
+      - MONGO_INITDB_ROOT_PASSWORD=hunter2
+  
+  mongoapi:
+    image: ${DOCKER_REGISTRY-}mongoapidemo
+    container_name: mongo-api
+    networks:
+      - backend
+    build:
+      context: .
+      dockerfile: MongoDb.Driver.API/Dockerfile
+    ports:
+      - 5197:80
+    depends_on:
+      - mongo
+    environment:
+      - ASPNETCORE_URLS=http://+:80
+      - ASPNETCORE_ENVIRONMENT=Development
+      - MONGODB_CONN=mongodb://AzureDiamond:hunter2@mongo:27017

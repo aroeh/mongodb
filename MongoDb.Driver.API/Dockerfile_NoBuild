@@ -1,0 +1,5 @@
+FROM mcr.microsoft.com/dotnet/aspnet:9.0
+USER app
+WORKDIR /app
+COPY MongoDb.Driver.API/publish .
+ENTRYPOINT ["dotnet", "MongoDb.Driver.API.dll"]

@@ -13,41 +13,16 @@ public class RestuarantController(ILogger<RestuarantController> log, IRestuarant
     private readonly IRestuarantOrchestration _orchestration = orchestration;
 
     /// <summary>
-    /// Get All Restuarants
+    /// List restuarants
     /// </summary>
-    /// <returns>Task of Typed Results via IResult</returns>
+    /// <param name="queryParameters">Optional - Query parameters to filter restuarants</param>
+    /// <returns>List of restuarants matching <paramref name="queryParameters"/></returns>
     [HttpGet]
-    public async Task<IResult> Get()
-    {
-        _logger.LogInformation("Get all restuarants request received");
-        List<Restuarant> restuarants = await _orchestration.GetAllRestuarants();
-
-        if (restuarants is null || restuarants.Count == 0)
-        {
-            return TypedResults.NotFound();
-        }
-
-        _logger.LogInformation("Get all restuarants request complete...returning results");
-        return TypedResults.Ok(restuarants);
-    }
-
-    /// <summary>
-    /// Find Restuarants using matching criteria from query strings
-    /// </summary>
-    /// <param name="search">Object containing properties for search parameters</param>
-    /// <returns>Task of Typed Results via IResult</returns>
-    [HttpPost("find")]
-    public async Task<IResult> Find([FromBody] SearchCriteria search)
+    public async Task<IResult> ListRestuarants([FromQuery] FilterQueryParameters queryParameters)
     {
         _logger.LogInformation("Find restuarants request received");
-        List<Restuarant> restuarants = await _orchestration.FindRestuarants(search.Name, search.Cuisine);
+        List<Restuarant> restuarants = await _orchestration.ListRestuarants(queryParameters);
 
-        if (restuarants is null || restuarants.Count == 0)
-        {
-            return TypedResults.NotFound();
-        }
-
-        _logger.LogInformation("Find restuarants request complete...returning results");
         return TypedResults.Ok(restuarants);
     }
 
@@ -55,64 +30,61 @@ public class RestuarantController(ILogger<RestuarantController> log, IRestuarant
     /// Get a Restuarant using the provided id
     /// </summary>
     /// <param name="id">Unique Identifier for a restuarant</param>
-    /// <returns>Task of Typed Results via IResult</returns>
+    /// <returns>Restuarant if not <see langword="null"/></returns>
     [HttpGet("{id}")]
-    public async Task<IResult> Restuarant(string id)
+    public async Task<IResult> Restuarant([FromRoute] string id)
     {
         _logger.LogInformation("Get restuarant request received");
-        Restuarant restuarant = await _orchestration.GetRestuarant(id);
+        Restuarant? restuarant = await _orchestration.GetRestuarant(id);
 
         if (restuarant is null || string.IsNullOrWhiteSpace(restuarant.Id))
         {
             return TypedResults.NotFound();
         }
 
-        _logger.LogInformation("Get restuarant request complete...returning results");
         return TypedResults.Ok(restuarant);
     }
 
     /// <summary>
-    /// Inserts a new restuarant
+    /// Creates a new restuarant
     /// </summary>
     /// <param name="restuarant">Restuarant object to insert</param>
-    /// <returns>Task of Typed Results via IResult</returns>
+    /// <returns>Restuarant object updated with the new id</returns>
     [HttpPost]
-    public async Task<IResult> Post([FromBody] Restuarant restuarant)
+    public async Task<IResult> CreateRestuarant([FromBody] CreateRestuarantRequest request)
     {
         _logger.LogInformation("Add restuarant request received");
-        bool success = await _orchestration.InsertRestuarant(restuarant);
+        Restuarant restuarant = await _orchestration.CreateRestuarant(request);
 
-        _logger.LogInformation("Add restuarant request complete...returning results");
-        return TypedResults.Ok(success);
+        return TypedResults.Created(HttpContext.Request.Path.Value, restuarant);
     }
 
     /// <summary>
-    /// Inserts many new restuarants
+    /// Creates many new restuarants
     /// </summary>
-    /// <param name="restuarants">Restuarant array with many items to insert</param>
-    /// <returns>Task of Typed Results via IResult</returns>
+    /// <param name="requests">Collection of create restuarant requests</param>
+    /// <returns>Create results for the transaction</returns>
     [HttpPost("bulk")]
-    public async Task<IResult> PostMany([FromBody] Restuarant[] restuarants)
+    public async Task<IResult> CreateManyRestuarants([FromBody] CreateRestuarantRequest[] requests)
     {
         _logger.LogInformation("Add restuarant request received");
-        bool success = await _orchestration.InsertRestuarants(restuarants);
+        var results = await _orchestration.CreateManyRestuarants(requests);
 
-        _logger.LogInformation("Add restuarant request complete...returning results");
-        return TypedResults.Ok(success);
+        return TypedResults.Ok(results);
     }
 
     /// <summary>
-    /// Updates an existing restuarant
+    /// Update an existing restuarant
     /// </summary>
+    /// <param name="id">Id of the Restuarant to update</param>
     /// <param name="restuarant">Restuarant object to update</param>
-    /// <returns>Task of Typed Results via IResult</returns>
-    [HttpPut]
-    public async Task<IResult> Put([FromBody] Restuarant restuarant)
+    /// <returns>Success result</returns>
+    [HttpPatch("{id}")]
+    public async Task<IResult> UpdateRestuarant([FromRoute] string id, [FromBody] UpdateRestuarantRequest request)
     {
         _logger.LogInformation("Update restuarant request received");
-        bool success = await _orchestration.UpdateRestuarant(restuarant);
+        bool success = await _orchestration.UpdateRestuarant(id, request);
 
-        _logger.LogInformation("Update restuarant request complete...returning results");
         return TypedResults.Ok(success);
     }
 }

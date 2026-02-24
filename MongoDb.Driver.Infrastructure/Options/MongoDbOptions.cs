@@ -1,0 +1,9 @@
+﻿namespace MongoDb.Driver.Infrastructure.Options;
+
+public record MongoDbOptions
+{
+    public const string ConfigKey = "MongoDb";
+
+    public string? ConnectionString { get; set; }
+    public string? DatabaseName { get; set; }
+}

@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="MongoDb.Driver.API/MongoDb.Driver.API.csproj" />
+  <Project Path="MongoDb.Driver.Core/MongoDb.Driver.Core.csproj" />
+  <Project Path="MongoDb.Driver.Infrastructure/MongoDb.Driver.Infrastructure.csproj" />
+  <Project Path="MongoDb.Driver.Shared/MongoDb.Driver.Shared.csproj" />
+</Solution>

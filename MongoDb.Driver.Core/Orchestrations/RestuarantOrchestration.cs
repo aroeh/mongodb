@@ -1,6 +1,8 @@
-﻿using MongoDb.Driver.Infrastructure.Repos;
+﻿using Microsoft.Extensions.Logging;
+using MongoDb.Driver.Core.Extensions;
+using MongoDb.Driver.Infrastructure.Interfaces;
 using MongoDb.Driver.Shared.Models;
-using Microsoft.Extensions.Logging;
+using MongoDb.Driver.Shared.Utils;
 
 namespace MongoDb.Driver.Core.Orchestrations;
 
@@ -10,100 +12,72 @@ public class RestuarantOrchestration(ILogger<RestuarantOrchestration> log, IRest
     private readonly IRestuarantRepo _repo = repo;
 
     /// <summary>
-    /// Retrieves all Restuarant from the database
+    /// List restuarants
     /// </summary>
-    /// <returns>List of Restuarant objects</returns>
-    public async Task<List<Restuarant>> GetAllRestuarants()
+    /// <param name="queryParameters">Optional - Query parameters to filter restuarants</param>
+    /// <returns>List of restuarants matching <paramref name="queryParameters"/></returns>
+    public async Task<List<Restuarant>> ListRestuarants(FilterQueryParameters queryParameters)
     {
-        _logger.LogInformation("Initiating get all restuarants");
-        List<Restuarant>? restuarants = await _repo.GetAllRestuarants();
-
-        if (restuarants is null || restuarants.Count == 0)
-        {
-            return [];
-        }
-
-        return restuarants;
+        _logger.LogInformation("Querying restuarants");
+        return await _repo.QueryRestuarants(queryParameters);
     }
 
     /// <summary>
-    /// Retrieves all Restuarant from the database matching search criteria
+    /// Get restuarant by id
     /// </summary>
-    /// <param name="name">Search Parameter on the Restuarant Name</param>
-    /// <param name="cuisine">Search Parameter on the Restuarant CuisineType</param>
-    /// <returns>List of Restuarant objects</returns>
-    public async Task<List<Restuarant>> FindRestuarants(string name, string cuisine)
+    /// <param name="id">Id of the restuarant</param>
+    /// <returns>Restuarant if not <see langword="null"/></returns>
+    public async Task<Restuarant?> GetRestuarant(string id)
     {
-        _logger.LogInformation("Initiating find restuarants");
-        List<Restuarant> restuarants = await _repo.FindRestuarants(name, cuisine);
-
-        if (restuarants is null || restuarants.Count == 0)
-        {
-            return [];
-        }
-
-        return restuarants;
+        _logger.LogInformation("Getting restuarant by id");
+        return await _repo.GetRestuarant(id);
     }
 
     /// <summary>
-    /// Retrieves a Restuarant from the database by id
+    /// Creates a new Restuarant
     /// </summary>
-    /// <param name="id">Unique Identifier for a restuarant</param>
-    /// <returns>Restuarant</returns>
-    public async Task<Restuarant> GetRestuarant(string id)
-    {
-        _logger.LogInformation("Initiating get restuarant by id");
-        Restuarant restuarant = await _repo.GetRestuarant(id);
-
-        if (restuarant is null)
-        {
-            return new Restuarant();
-        }
-
-        return restuarant;
-    }
-
-    /// <summary>
-    /// Inserts a new Restuarant record
-    /// </summary>
-    /// <param name="restuarant">Restuarant object to insert</param>
-    /// <returns>Success status of the insert operation</returns>
-    public async Task<bool> InsertRestuarant(Restuarant restuarant)
+    /// <param name="request">Restuarant properties and data</param>
+    /// <returns>Restuarant object updated with the new id</returns>
+    public async Task<Restuarant> CreateRestuarant(CreateRestuarantRequest request)
     {
         _logger.LogInformation("Adding new restuarant");
-        Restuarant newRestuarant = await _repo.InsertRestuarant(restuarant);
+        string newId = IdGenerator.GenerateId();
+        Restuarant restuarant = request.MapToRestuarant(newId);
 
-        _logger.LogInformation("Checking insert operation result");
-        return newRestuarant is not null && !string.IsNullOrWhiteSpace(newRestuarant.Id);
+        return await _repo.CreateRestuarant(restuarant);
     }
 
     /// <summary>
-    /// Inserts a new Restuarant record
+    /// Create many new Restuarants
     /// </summary>
-    /// <param name="restuarants">Restuarant array with many items to insert</param>
-    /// <returns>Success status of the insert operation</returns>
-    public async Task<bool> InsertRestuarants(Restuarant[] restuarants)
+    /// <param name="requests">Collection of create restuarant requests</param>
+    /// <returns>MongoDb results for the transaction</returns>
+    public async Task<MongoTransactionResult> CreateManyRestuarants(CreateRestuarantRequest[] requests)
     {
-        _logger.LogInformation("Adding new restuarant");
-        Restuarant[] newRestuarants = await _repo.InsertRestuarants(restuarants);
+        Restuarant[] requestCollection = new Restuarant[requests.Length];
+        for (int i = 0; i < requests.Length; i++)
+        {
+            string newId = IdGenerator.GenerateId();
+            Restuarant newItem = requests[i].MapToRestuarant(newId);
+            requestCollection[i] = newItem;
+        }
 
-        _logger.LogInformation("Checking insert operation result");
-        return newRestuarants is not null
-            && newRestuarants.Length > 0
-            && newRestuarants.All(r => !string.IsNullOrWhiteSpace(r.Id));
+        _logger.LogInformation("Adding new restuarant");
+        return await _repo.CreateManyRestuarants(requestCollection);
     }
 
     /// <summary>
     /// Updates a Restuarant record
     /// </summary>
-    /// <param name="restuarant">Restuarant object to update</param>
-    /// <returns>Success status of the update operation</returns>
-    public async Task<bool> UpdateRestuarant(Restuarant restuarant)
+    /// <param name="id">Id of the restuarant</param>
+    /// <param name="request">Restuarant properties to update</param>
+    /// <returns>Success result</returns>
+    public async Task<bool> UpdateRestuarant(string id, UpdateRestuarantRequest request)
     {
-        _logger.LogInformation("Updating restuarant");
-        MongoUpdateResult result = await _repo.UpdateRestuarant(restuarant);
+        _ = await GetRestuarant(id) ?? throw new Exception("Restuarant does not exist.  Unable to update.");
 
-        _logger.LogInformation("Checking update operation result");
-        return (result.IsAcknowledged && result.ModifiedCount > 0);
+        _logger.LogInformation("Updating restuarant");
+        MongoTransactionResult result = await _repo.UpdateRestuarant(id, request);
+        return result.Success;
     }
 }

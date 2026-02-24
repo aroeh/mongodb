@@ -1,7 +1,9 @@
-﻿using MongoDb.Driver.Infrastructure.Repos;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MongoDb.Driver.Infrastructure.DbService;
+using MongoDb.Driver.Infrastructure.Documents;
+using MongoDb.Driver.Infrastructure.Interfaces;
+using MongoDb.Driver.Infrastructure.Options;
+using MongoDb.Driver.Infrastructure.Repos;
 
 namespace MongoDb.Driver.Infrastructure.Extensions;
 
@@ -9,10 +11,33 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddInfrastructureRepos(this IServiceCollection services, IConfiguration config)
     {
-        services.AddTransient<IRestuarantRepo, RestuarantRepo>();
+        services.AddScoped<IMongoDbRepo<RestuarantDocument>, MongoDbRepo<RestuarantDocument>>();
+        services.AddScoped<IRestuarantRepo, RestuarantRepo>();
 
-        services.AddTransient<IMongoWrapper, MongoWrapper>();
+        GetOptions(services, config);
 
         return services;
+    }
+
+    private static void GetOptions(IServiceCollection services, IConfiguration config)
+    {
+        var configSettings = config.GetRequiredSection(MongoDbOptions.ConfigKey);
+
+        var options = configSettings.Get<MongoDbOptions>();
+
+        if(options is not null)
+        {
+            if (string.IsNullOrWhiteSpace(options.ConnectionString))
+            {
+                throw new Exception("MongoDb Connection string is missing");
+            }
+
+            if (string.IsNullOrWhiteSpace(options.DatabaseName))
+            {
+                throw new Exception("MongoDb database name is missing");
+            }
+        }
+
+        services.Configure<MongoDbOptions>(configSettings);
     }
 }

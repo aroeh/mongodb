@@ -1,15 +1,15 @@
 ﻿using MongoDb.Driver.Shared.Models;
 
-namespace MongoDb.Driver.Core.Orchestrations;
+namespace MongoDb.Driver.Infrastructure.Interfaces;
 
-public interface IRestuarantOrchestration
+public interface IRestuarantRepo
 {
     /// <summary>
-    /// List restuarants
+    /// Query restuarants
     /// </summary>
     /// <param name="queryParameters">Optional - Query parameters to filter restuarants</param>
-    /// <returns>List of restuarants matching <paramref name="queryParameters"/></returns>
-    Task<List<Restuarant>> ListRestuarants(FilterQueryParameters queryParameters);
+    /// <returns>Collection of available restuarant records.  Returns empty list if there are no records found matching criteria</returns>
+    Task<List<Restuarant>> QueryRestuarants(FilterQueryParameters queryParameters);
 
     /// <summary>
     /// Get restuarant by id
@@ -21,22 +21,22 @@ public interface IRestuarantOrchestration
     /// <summary>
     /// Creates a new Restuarant
     /// </summary>
-    /// <param name="request">Restuarant properties and data</param>
+    /// <param name="restuarant">Restuarant properties and data</param>
     /// <returns>Restuarant object updated with the new id</returns>
-    Task<Restuarant> CreateRestuarant(CreateRestuarantRequest request);
+    Task<Restuarant> CreateRestuarant(Restuarant restuarant);
 
     /// <summary>
     /// Create many new Restuarants
     /// </summary>
-    /// <param name="requests">Collection of create restuarant requests</param>
+    /// <param name="restuarants">Collection of new restuarants</param>
     /// <returns>MongoDb results for the transaction</returns>
-    Task<MongoTransactionResult> CreateManyRestuarants(CreateRestuarantRequest[] requests);
+    Task<MongoTransactionResult> CreateManyRestuarants(Restuarant[] restuarants);
 
     /// <summary>
-    /// Updates a Restuarant record
+    /// Update an existing restuarant
     /// </summary>
     /// <param name="id">Id of the restuarant</param>
     /// <param name="request">Restuarant properties to update</param>
-    /// <returns>Success result</returns>
-    Task<bool> UpdateRestuarant(string id, UpdateRestuarantRequest request);
+    /// <returns>MongoDb results for the transaction</returns>
+    Task<MongoTransactionResult> UpdateRestuarant(string id, UpdateRestuarantRequest request);
 }

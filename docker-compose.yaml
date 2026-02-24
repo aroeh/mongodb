@@ -28,5 +28,4 @@ services:
       - mongo
     environment:
       - ASPNETCORE_URLS=http://+:80
-      - ASPNETCORE_ENVIRONMENT=Development
-      - MONGODB_CONN=mongodb://AzureDiamond:hunter2@mongo:27017
+      - ASPNETCORE_ENVIRONMENT=Docker

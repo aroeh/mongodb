@@ -2,24 +2,14 @@
 @controllerAddress = {{baseAddress}}/api/restuarant
 
 
-GET {{controllerAddress}}
-### GET - Get All Restuarants
+GET {{controllerAddress}}?name=pizza&cuisine=pizza
+
+### Find Restuarants by search criteria
 
 
-POST {{controllerAddress}}/find
-Accept: {{appJson}}
-Content-Type: {{appJson}}
+GET {{controllerAddress}}/{id}
 
-{
-  "name": "Test",
-  "cuisine": "Test"
-}
-### POST - Find Restuarants by search criteria
-
-
-@id = 66b03c2009119f72a45f9c4f
-GET {{controllerAddress}}/{{id}}
-### GET - Get Restuarant by id
+### Get Restuarant by id
 
 
 
@@ -40,7 +30,8 @@ Content-Type: {{appJson}}
         "country": "United States"
     }
 }
-### POST - Add a new Restuarant
+
+### Add a new Restuarant
 
 
 POST {{baseAddress}}/api/restuarant/bulk
@@ -101,11 +92,12 @@ Content-Type: {{appJson}}
     }
   }
 ]
-### POST - Add many new Restuarants
+
+### Add many new Restuarants
 
 
 
-PUT {{baseAddress}}/api/restuarant
+PATCH {{baseAddress}}/api/restuarant/{id}
 Accept: {{appJson}}
 Content-Type: {{appJson}}
 
@@ -123,4 +115,5 @@ Content-Type: {{appJson}}
         "country": "United States"
     }
 }
-### PUT - Update an existing Restuarant
+
+### Update an existing Restuarant

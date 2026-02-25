@@ -24,7 +24,7 @@ public class RestuarantRepo
     /// </summary>
     /// <param name="queryParameters">Optional - Query parameters to filter restuarants</param>
     /// <returns>Collection of available restuarant records.  Returns empty list if there are no records found matching criteria</returns>
-    public async Task<List<Restuarant>> QueryRestuarants(FilterQueryParameters queryParameters)
+    public async Task<List<RestuarantBO>> QueryRestuarants(FilterQueryParametersBO queryParameters)
     {
         FilterDefinition<RestuarantDocument> filter = ConfigureFilter(queryParameters);
 
@@ -33,7 +33,7 @@ public class RestuarantRepo
         return [.. restuarants.Select(_ => _.ToRestuarant())];
     }
 
-    private static FilterDefinition<RestuarantDocument> ConfigureFilter(FilterQueryParameters queryParameters)
+    private static FilterDefinition<RestuarantDocument> ConfigureFilter(FilterQueryParametersBO queryParameters)
     {
         FilterDefinitionBuilder<RestuarantDocument> builder = Builders<RestuarantDocument>.Filter;
         FilterDefinition<RestuarantDocument> filter = builder.Empty;
@@ -67,7 +67,7 @@ public class RestuarantRepo
     /// </summary>
     /// <param name="id">Id of the restuarant</param>
     /// <returns>Restuarant if not <see langword="null"/></returns>
-    public async Task<Restuarant?> GetRestuarant(string id)
+    public async Task<RestuarantBO?> GetRestuarant(string id)
     {
         FilterDefinition<RestuarantDocument> filter = Builders<RestuarantDocument>.Filter
             .Eq(d => d.Id, id);
@@ -82,7 +82,7 @@ public class RestuarantRepo
     /// </summary>
     /// <param name="restuarant">Restuarant properties and data</param>
     /// <returns>Restuarant object updated with the new id</returns>
-    public async Task<Restuarant> CreateRestuarant(Restuarant restuarant)
+    public async Task<RestuarantBO> CreateRestuarant(RestuarantBO restuarant)
     {
         _logger.LogInformation("Adding new restuarant");
         RestuarantDocument document = restuarant.ToRestuarantDocument();
@@ -96,7 +96,7 @@ public class RestuarantRepo
     /// </summary>
     /// <param name="restuarants">Collection of new restuarants</param>
     /// <returns>MongoDb results for the transaction</returns>
-    public async Task<MongoTransactionResult> CreateManyRestuarants(Restuarant[] restuarants)
+    public async Task<MongoTransactionResult> CreateManyRestuarants(RestuarantBO[] restuarants)
     {
         _logger.LogInformation("Adding new restuarants");
         RestuarantDocument[] documents = [.. restuarants.Select(_ => _.ToRestuarantDocument())];
@@ -109,7 +109,7 @@ public class RestuarantRepo
     /// <param name="id">Id of the restuarant</param>
     /// <param name="request">Restuarant properties to update</param>
     /// <returns>MongoDb results for the transaction</returns>
-    public async Task<MongoTransactionResult> UpdateRestuarant(string id, UpdateRestuarantRequest request)
+    public async Task<MongoTransactionResult> UpdateRestuarant(string id, UpdateRestuarantRequestBO request)
     {
         _logger.LogInformation("Updating restuarant");
 

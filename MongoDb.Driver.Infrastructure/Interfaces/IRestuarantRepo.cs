@@ -9,28 +9,28 @@ public interface IRestuarantRepo
     /// </summary>
     /// <param name="queryParameters">Optional - Query parameters to filter restuarants</param>
     /// <returns>Collection of available restuarant records.  Returns empty list if there are no records found matching criteria</returns>
-    Task<List<Restuarant>> QueryRestuarants(FilterQueryParameters queryParameters);
+    Task<List<RestuarantBO>> QueryRestuarants(FilterQueryParametersBO queryParameters);
 
     /// <summary>
     /// Get restuarant by id
     /// </summary>
     /// <param name="id">Id of the restuarant</param>
     /// <returns>Restuarant if not <see langword="null"/></returns>
-    Task<Restuarant?> GetRestuarant(string id);
+    Task<RestuarantBO?> GetRestuarant(string id);
 
     /// <summary>
     /// Creates a new Restuarant
     /// </summary>
     /// <param name="restuarant">Restuarant properties and data</param>
     /// <returns>Restuarant object updated with the new id</returns>
-    Task<Restuarant> CreateRestuarant(Restuarant restuarant);
+    Task<RestuarantBO> CreateRestuarant(RestuarantBO restuarant);
 
     /// <summary>
     /// Create many new Restuarants
     /// </summary>
     /// <param name="restuarants">Collection of new restuarants</param>
     /// <returns>MongoDb results for the transaction</returns>
-    Task<MongoTransactionResult> CreateManyRestuarants(Restuarant[] restuarants);
+    Task<MongoTransactionResult> CreateManyRestuarants(RestuarantBO[] restuarants);
 
     /// <summary>
     /// Update an existing restuarant
@@ -38,5 +38,5 @@ public interface IRestuarantRepo
     /// <param name="id">Id of the restuarant</param>
     /// <param name="request">Restuarant properties to update</param>
     /// <returns>MongoDb results for the transaction</returns>
-    Task<MongoTransactionResult> UpdateRestuarant(string id, UpdateRestuarantRequest request);
+    Task<MongoTransactionResult> UpdateRestuarant(string id, UpdateRestuarantRequestBO request);
 }

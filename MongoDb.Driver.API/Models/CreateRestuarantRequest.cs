@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MongoDb.Driver.Shared.Models;
+namespace MongoDb.Driver.API.Models;
 
 public record CreateRestuarantRequest
 {

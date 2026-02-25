@@ -1,6 +1,8 @@
-﻿using MongoDb.Driver.Core.Orchestrations;
-using MongoDb.Driver.Shared.Models;
+﻿using MongoDb.Driver.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
+using MongoDb.Driver.API.Models;
+using MongoDb.Driver.API.Extensions;
+using MongoDb.Driver.Core.Interfaces;
 
 namespace MongoDb.Driver.API.Controllers;
 
@@ -21,7 +23,7 @@ public class RestuarantController(ILogger<RestuarantController> log, IRestuarant
     public async Task<IResult> ListRestuarants([FromQuery] FilterQueryParameters queryParameters)
     {
         _logger.LogInformation("Find restuarants request received");
-        List<Restuarant> restuarants = await _orchestration.ListRestuarants(queryParameters);
+        List<RestuarantBO> restuarants = await _orchestration.ListRestuarants(queryParameters.ToFilterQueryParametersBO());
 
         return TypedResults.Ok(restuarants);
     }
@@ -35,7 +37,7 @@ public class RestuarantController(ILogger<RestuarantController> log, IRestuarant
     public async Task<IResult> Restuarant([FromRoute] string id)
     {
         _logger.LogInformation("Get restuarant request received");
-        Restuarant? restuarant = await _orchestration.GetRestuarant(id);
+        RestuarantBO? restuarant = await _orchestration.GetRestuarant(id);
 
         if (restuarant is null || string.IsNullOrWhiteSpace(restuarant.Id))
         {
@@ -54,7 +56,7 @@ public class RestuarantController(ILogger<RestuarantController> log, IRestuarant
     public async Task<IResult> CreateRestuarant([FromBody] CreateRestuarantRequest request)
     {
         _logger.LogInformation("Add restuarant request received");
-        Restuarant restuarant = await _orchestration.CreateRestuarant(request);
+        RestuarantBO restuarant = await _orchestration.CreateRestuarant(request.ToCreateRestuarantRequestBO());
 
         return TypedResults.Created(HttpContext.Request.Path.Value, restuarant);
     }
@@ -68,7 +70,8 @@ public class RestuarantController(ILogger<RestuarantController> log, IRestuarant
     public async Task<IResult> CreateManyRestuarants([FromBody] CreateRestuarantRequest[] requests)
     {
         _logger.LogInformation("Add restuarant request received");
-        var results = await _orchestration.CreateManyRestuarants(requests);
+        CreateRestuarantRequestBO[] requestBOs = [.. requests.Select(_ => _.ToCreateRestuarantRequestBO())];
+        var results = await _orchestration.CreateManyRestuarants(requestBOs);
 
         return TypedResults.Ok(results);
     }
@@ -83,7 +86,7 @@ public class RestuarantController(ILogger<RestuarantController> log, IRestuarant
     public async Task<IResult> UpdateRestuarant([FromRoute] string id, [FromBody] UpdateRestuarantRequest request)
     {
         _logger.LogInformation("Update restuarant request received");
-        bool success = await _orchestration.UpdateRestuarant(id, request);
+        bool success = await _orchestration.UpdateRestuarant(id, request.ToUpdateRestuarantRequestBO());
 
         return TypedResults.Ok(success);
     }

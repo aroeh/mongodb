@@ -1,5 +1,6 @@
 ﻿using MongoDb.Driver.Core.Orchestrations;
 using Microsoft.Extensions.DependencyInjection;
+using MongoDb.Driver.Core.Interfaces;
 
 namespace MongoDb.Driver.Core.Extensions;
 

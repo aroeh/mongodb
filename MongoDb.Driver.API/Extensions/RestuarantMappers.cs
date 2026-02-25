@@ -1,0 +1,59 @@
+﻿using MongoDb.Driver.API.Models;
+using MongoDb.Driver.Shared.Models;
+
+namespace MongoDb.Driver.API.Extensions;
+
+internal static class RestuarantMappers
+{
+    internal static FilterQueryParametersBO ToFilterQueryParametersBO(this FilterQueryParameters parameters)
+    {
+        return new FilterQueryParametersBO(
+            parameters.Names,
+            parameters.CuisineType
+        );
+    }
+
+    internal static CreateRestuarantRequestBO ToCreateRestuarantRequestBO(this CreateRestuarantRequest request)
+    {
+        return new CreateRestuarantRequestBO(
+            request.Name,
+            request.CuisineType,
+            request.Website,
+            request.Phone,
+            request.Address.ToCreateLocationRequestBO()
+        );
+    }
+
+    internal static CreateLocationRequestBO ToCreateLocationRequestBO(this CreateLocationRequest request)
+    {
+        return new CreateLocationRequestBO(
+            request.Street,
+            request.City,
+            request.State,
+            request.Country,
+            request.ZipCode
+        );
+    }
+
+    internal static UpdateRestuarantRequestBO ToUpdateRestuarantRequestBO(this UpdateRestuarantRequest request)
+    {
+        return new UpdateRestuarantRequestBO(
+            request.Name,
+            request.CuisineType,
+            request.Website,
+            request.Phone,
+            request.Address?.ToUpdateLocationRequestBO()
+        );
+    }
+
+    internal static UpdateLocationRequestBO ToUpdateLocationRequestBO(this UpdateLocationRequest request)
+    {
+        return new UpdateLocationRequestBO(
+            request.Street,
+            request.City,
+            request.State,
+            request.Country,
+            request.ZipCode
+        );
+    }
+}

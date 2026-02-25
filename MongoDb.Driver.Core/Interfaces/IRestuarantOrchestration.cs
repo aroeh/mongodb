@@ -1,6 +1,6 @@
 ﻿using MongoDb.Driver.Shared.Models;
 
-namespace MongoDb.Driver.Core.Orchestrations;
+namespace MongoDb.Driver.Core.Interfaces;
 
 public interface IRestuarantOrchestration
 {
@@ -9,28 +9,28 @@ public interface IRestuarantOrchestration
     /// </summary>
     /// <param name="queryParameters">Optional - Query parameters to filter restuarants</param>
     /// <returns>List of restuarants matching <paramref name="queryParameters"/></returns>
-    Task<List<Restuarant>> ListRestuarants(FilterQueryParameters queryParameters);
+    Task<List<RestuarantBO>> ListRestuarants(FilterQueryParametersBO queryParameters);
 
     /// <summary>
     /// Get restuarant by id
     /// </summary>
     /// <param name="id">Id of the restuarant</param>
     /// <returns>Restuarant if not <see langword="null"/></returns>
-    Task<Restuarant?> GetRestuarant(string id);
+    Task<RestuarantBO?> GetRestuarant(string id);
 
     /// <summary>
     /// Creates a new Restuarant
     /// </summary>
     /// <param name="request">Restuarant properties and data</param>
     /// <returns>Restuarant object updated with the new id</returns>
-    Task<Restuarant> CreateRestuarant(CreateRestuarantRequest request);
+    Task<RestuarantBO> CreateRestuarant(CreateRestuarantRequestBO request);
 
     /// <summary>
     /// Create many new Restuarants
     /// </summary>
     /// <param name="requests">Collection of create restuarant requests</param>
     /// <returns>MongoDb results for the transaction</returns>
-    Task<MongoTransactionResult> CreateManyRestuarants(CreateRestuarantRequest[] requests);
+    Task<MongoTransactionResult> CreateManyRestuarants(CreateRestuarantRequestBO[] requests);
 
     /// <summary>
     /// Updates a Restuarant record
@@ -38,5 +38,5 @@ public interface IRestuarantOrchestration
     /// <param name="id">Id of the restuarant</param>
     /// <param name="request">Restuarant properties to update</param>
     /// <returns>Success result</returns>
-    Task<bool> UpdateRestuarant(string id, UpdateRestuarantRequest request);
+    Task<bool> UpdateRestuarant(string id, UpdateRestuarantRequestBO request);
 }

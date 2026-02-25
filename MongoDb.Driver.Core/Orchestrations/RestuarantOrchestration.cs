@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using MongoDb.Driver.Core.Extensions;
+using MongoDb.Driver.Core.Interfaces;
 using MongoDb.Driver.Infrastructure.Interfaces;
 using MongoDb.Driver.Shared.Models;
 using MongoDb.Driver.Shared.Utils;
@@ -16,7 +17,7 @@ public class RestuarantOrchestration(ILogger<RestuarantOrchestration> log, IRest
     /// </summary>
     /// <param name="queryParameters">Optional - Query parameters to filter restuarants</param>
     /// <returns>List of restuarants matching <paramref name="queryParameters"/></returns>
-    public async Task<List<Restuarant>> ListRestuarants(FilterQueryParameters queryParameters)
+    public async Task<List<RestuarantBO>> ListRestuarants(FilterQueryParametersBO queryParameters)
     {
         _logger.LogInformation("Querying restuarants");
         return await _repo.QueryRestuarants(queryParameters);
@@ -27,7 +28,7 @@ public class RestuarantOrchestration(ILogger<RestuarantOrchestration> log, IRest
     /// </summary>
     /// <param name="id">Id of the restuarant</param>
     /// <returns>Restuarant if not <see langword="null"/></returns>
-    public async Task<Restuarant?> GetRestuarant(string id)
+    public async Task<RestuarantBO?> GetRestuarant(string id)
     {
         _logger.LogInformation("Getting restuarant by id");
         return await _repo.GetRestuarant(id);
@@ -38,11 +39,11 @@ public class RestuarantOrchestration(ILogger<RestuarantOrchestration> log, IRest
     /// </summary>
     /// <param name="request">Restuarant properties and data</param>
     /// <returns>Restuarant object updated with the new id</returns>
-    public async Task<Restuarant> CreateRestuarant(CreateRestuarantRequest request)
+    public async Task<RestuarantBO> CreateRestuarant(CreateRestuarantRequestBO request)
     {
         _logger.LogInformation("Adding new restuarant");
         string newId = IdGenerator.GenerateId();
-        Restuarant restuarant = request.MapToRestuarant(newId);
+        RestuarantBO restuarant = request.MapToRestuarant(newId);
 
         return await _repo.CreateRestuarant(restuarant);
     }
@@ -52,13 +53,13 @@ public class RestuarantOrchestration(ILogger<RestuarantOrchestration> log, IRest
     /// </summary>
     /// <param name="requests">Collection of create restuarant requests</param>
     /// <returns>MongoDb results for the transaction</returns>
-    public async Task<MongoTransactionResult> CreateManyRestuarants(CreateRestuarantRequest[] requests)
+    public async Task<MongoTransactionResult> CreateManyRestuarants(CreateRestuarantRequestBO[] requests)
     {
-        Restuarant[] requestCollection = new Restuarant[requests.Length];
+        RestuarantBO[] requestCollection = new RestuarantBO[requests.Length];
         for (int i = 0; i < requests.Length; i++)
         {
             string newId = IdGenerator.GenerateId();
-            Restuarant newItem = requests[i].MapToRestuarant(newId);
+            RestuarantBO newItem = requests[i].MapToRestuarant(newId);
             requestCollection[i] = newItem;
         }
 
@@ -72,7 +73,7 @@ public class RestuarantOrchestration(ILogger<RestuarantOrchestration> log, IRest
     /// <param name="id">Id of the restuarant</param>
     /// <param name="request">Restuarant properties to update</param>
     /// <returns>Success result</returns>
-    public async Task<bool> UpdateRestuarant(string id, UpdateRestuarantRequest request)
+    public async Task<bool> UpdateRestuarant(string id, UpdateRestuarantRequestBO request)
     {
         _ = await GetRestuarant(id) ?? throw new Exception("Restuarant does not exist.  Unable to update.");
 

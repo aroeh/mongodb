@@ -5,32 +5,30 @@ namespace MongoDb.Driver.Infrastructure.Extensions;
 
 internal static class RestuarantDocumentExtensions
 {
-    internal static Restuarant ToRestuarant(this RestuarantDocument doc)
+    internal static RestuarantBO ToRestuarant(this RestuarantDocument doc)
     {
-        return new Restuarant()
-        {
-            Id = doc.Id,
-            Name = doc.Name,
-            CuisineType = doc.CuisineType,
-            Website = doc.Website is null ? null : new Uri(doc.Website),
-            Phone = doc.Phone,
-            Address = doc.Address.ToLocation(),
-        };
+        return new RestuarantBO(
+            doc.Id,
+            doc.Name,
+            doc.CuisineType,
+            doc.Website is null ? null : new Uri(doc.Website),
+            doc.Phone,
+            doc.Address.ToLocation()
+        );
     }
 
-    internal static Location ToLocation(this LocationDocument doc)
+    internal static LocationBO ToLocation(this LocationDocument doc)
     {
-        return new Location()
-        {
-            Street = doc.Street,
-            City = doc.City,
-            State = doc.State,
-            Country = doc.Country,
-            ZipCode = doc.ZipCode
-        };
+        return new LocationBO(
+            doc.Street,
+            doc.City,
+            doc.State,
+            doc.Country,
+            doc.ZipCode
+        );
     }
 
-    internal static RestuarantDocument ToRestuarantDocument(this Restuarant model)
+    internal static RestuarantDocument ToRestuarantDocument(this RestuarantBO model)
     {
         return new RestuarantDocument()
         {
@@ -43,7 +41,7 @@ internal static class RestuarantDocumentExtensions
         };
     }
 
-    internal static LocationDocument ToLocationDocument(this Location model)
+    internal static LocationDocument ToLocationDocument(this LocationBO model)
     {
         return new LocationDocument()
         {

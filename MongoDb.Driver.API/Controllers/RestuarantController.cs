@@ -90,4 +90,18 @@ public class RestuarantController(ILogger<RestuarantController> log, IRestuarant
 
         return TypedResults.Ok(success);
     }
+
+    /// <summary>
+    /// Remove a restuarant
+    /// </summary>
+    /// <param name="id">Id of the Restuarant to update</param>
+    /// <returns>Success result</returns>
+    [HttpDelete("{id}")]
+    public async Task<IResult> RemoveRestuarant([FromRoute] string id)
+    {
+        _logger.LogInformation("Remove restuarant request received");
+        bool success = await _orchestration.RemoveRestuarant(id);
+
+        return TypedResults.Ok(success);
+    }
 }

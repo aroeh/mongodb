@@ -81,4 +81,16 @@ public class RestuarantOrchestration(ILogger<RestuarantOrchestration> log, IRest
         MongoTransactionResult result = await _repo.UpdateRestuarant(id, request);
         return result.Success;
     }
+
+    /// <summary>
+    /// Removes a Restuarant record
+    /// </summary>
+    /// <param name="id">Id of the restuarant</param>
+    /// <returns>Success result</returns>
+    public async Task<bool> RemoveRestuarant(string id)
+    {
+        _logger.LogInformation("Removing restuarant");
+        MongoTransactionResult result = await _repo.RemoveRestuarant(id);
+        return result.Success;
+    }
 }

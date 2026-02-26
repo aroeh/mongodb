@@ -169,4 +169,17 @@ public class RestuarantRepo
 
         return await _mongo.UpdateOneAsync(_collection, filter, updates);
     }
+
+    /// <summary>
+    /// Removes a restuarant from the database
+    /// </summary>
+    /// <param name="id">Id of the restuarant</param>
+    /// <returns>MongoDb results for the transaction</returns>
+    public async Task<MongoTransactionResult> RemoveRestuarant(string id)
+    {
+        FilterDefinition<RestuarantDocument> filter = Builders<RestuarantDocument>.Filter
+            .Eq(d => d.Id, id);
+
+        return await _mongo.DeleteOneAsync(_collection, filter);
+    }
 }

@@ -39,4 +39,11 @@ public interface IRestuarantOrchestration
     /// <param name="request">Restuarant properties to update</param>
     /// <returns>Success result</returns>
     Task<bool> UpdateRestuarant(string id, UpdateRestuarantRequestBO request);
+
+    /// <summary>
+    /// Removes a Restuarant record
+    /// </summary>
+    /// <param name="id">Id of the restuarant</param>
+    /// <returns>Success result</returns>
+    Task<bool> RemoveRestuarant(string id);
 }

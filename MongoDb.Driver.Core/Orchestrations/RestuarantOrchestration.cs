@@ -16,8 +16,8 @@ public class RestuarantOrchestration(ILogger<RestuarantOrchestration> log, IRest
     /// List restuarants
     /// </summary>
     /// <param name="queryParameters">Optional - Query parameters to filter restuarants</param>
-    /// <returns>List of restuarants matching <paramref name="queryParameters"/></returns>
-    public async Task<List<RestuarantBO>> ListRestuarants(FilterQueryParametersBO queryParameters)
+    /// <returns>Paginated list of restuarants matching <paramref name="queryParameters"/></returns>
+    public async Task<PaginationResponse<RestuarantBO>> ListRestuarants(FilterQueryParametersBO queryParameters)
     {
         _logger.LogInformation("Querying restuarants");
         return await _repo.QueryRestuarants(queryParameters);

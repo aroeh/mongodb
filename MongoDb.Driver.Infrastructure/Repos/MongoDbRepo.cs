@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MongoDb.Driver.Infrastructure.Extensions;
 using MongoDb.Driver.Infrastructure.Interfaces;
 using MongoDb.Driver.Infrastructure.Options;
 using MongoDb.Driver.Shared.Models;
@@ -45,8 +46,8 @@ public class MongoDbRepo<TEntity> : IMongoDbRepo<TEntity> where TEntity : class
     /// </summary>
     /// <param name="collectionName">Name of the Collection</param>
     /// <param name="filter">Filter Definition query</param>
-    /// <returns>Read only collection entities matching <paramref name="filter"/></returns>
-    public async virtual Task<IEnumerable<TEntity>> GetManyAsync(string collectionName, FilterDefinition<TEntity> filter)
+    /// <returns>Read only collection of entities matching <paramref name="filter"/></returns>
+    public async Task<IEnumerable<TEntity>> GetManyAsync(string collectionName, FilterDefinition<TEntity> filter)
     {
         var collection = _database.GetCollection<TEntity>(collectionName);
 
@@ -55,12 +56,40 @@ public class MongoDbRepo<TEntity> : IMongoDbRepo<TEntity> where TEntity : class
     }
 
     /// <summary>
+    /// Gets a paginated collection of entities
+    /// </summary>
+    /// <param name="collectionName">Name of the Collection</param>
+    /// <param name="filter">Filter Definition query</param>
+    /// <param name="pagination">Pagination parameters</param>
+    /// <remarks>
+    /// Uses Offset pagination implementation
+    /// </remarks>
+    /// <returns>Paginated collection of entities matching <paramref name="filter"/></returns>
+    public async Task<PaginationResponse<TEntity>> GetManyAsync(string collectionName, FilterDefinition<TEntity> filter, PaginationQueryParametersBO pagination)
+    {
+        var collection = _database.GetCollection<TEntity>(collectionName);
+
+        var totalCount = await collection.EstimatedDocumentCountAsync();
+        var skipToPosition = pagination.Page == 1 ? 0 : (pagination.Page - 1) * pagination.PageSize;
+
+        _logger.LogInformation("Finding items by Filter");
+        var results = await collection
+            .Find(filter)
+            .Skip(skipToPosition)
+            .Limit(pagination.PageSize)
+            .ToListAsync();
+
+        PaginationMetaData metaData = new(pagination.Page, results.Count, pagination.PageSize, totalCount);
+        return new PaginationResponse<TEntity>(results, metaData);
+    }
+
+    /// <summary>
     /// Get a single instance of an entity
     /// </summary>
     /// <param name="collectionName">Name of the Collection</param>
     /// <param name="filter">Filter Definition query</param>
     /// <returns>Instance of a entity matching <paramref name="filter"/></returns>
-    public async virtual Task<TEntity?> GetAsync(string collectionName, FilterDefinition<TEntity> filter)
+    public async Task<TEntity?> GetAsync(string collectionName, FilterDefinition<TEntity> filter)
     {
         var collection = _database.GetCollection<TEntity>(collectionName);
 
@@ -74,7 +103,7 @@ public class MongoDbRepo<TEntity> : IMongoDbRepo<TEntity> where TEntity : class
     /// <param name="collectionName">Name of the Collection</param>
     /// <param name="document">Document to be created in the <paramref name="collectionName"/> collection</param>
     /// <returns>Newly created document</returns>
-    public async virtual Task<TEntity> CreateOneAsync(string collectionName, TEntity document)
+    public async Task<TEntity> CreateOneAsync(string collectionName, TEntity document)
     {
         var collection = _database.GetCollection<TEntity>(collectionName);
 
@@ -89,7 +118,7 @@ public class MongoDbRepo<TEntity> : IMongoDbRepo<TEntity> where TEntity : class
     /// <param name="collectionName">Name of the Collection</param>
     /// <param name="documents">Documents to be created in the <paramref name="collectionName"/> collection</param>
     /// <returns>Operation success result of true or false</returns>
-    public async virtual Task<MongoTransactionResult> CreateManyAsync(string collectionName, IEnumerable<TEntity> documents)
+    public async Task<MongoTransactionResult> CreateManyAsync(string collectionName, IEnumerable<TEntity> documents)
     {
         var collection = _database.GetCollection<TEntity>(collectionName);
 
@@ -111,7 +140,7 @@ public class MongoDbRepo<TEntity> : IMongoDbRepo<TEntity> where TEntity : class
     /// <param name="filter">Filter Definition query</param>
     /// <param name="document">Document to be replaced in the <paramref name="collectionName"/> collection</param>
     /// <returns><see cref="MongoTransactionResult"/> results of the Replace operation</returns>
-    public async virtual Task<MongoTransactionResult> ReplaceOneAsync(string collectionName, FilterDefinition<TEntity> filter, TEntity document)
+    public async Task<MongoTransactionResult> ReplaceOneAsync(string collectionName, FilterDefinition<TEntity> filter, TEntity document)
     {
         var collection = _database.GetCollection<TEntity>(collectionName);
 
@@ -119,13 +148,7 @@ public class MongoDbRepo<TEntity> : IMongoDbRepo<TEntity> where TEntity : class
         ReplaceOneResult result = await collection.ReplaceOneAsync(filter, document);
 
         _logger.LogInformation("operation completed...returning result");
-        return new MongoTransactionResult
-        {
-            TransactionRun = true,
-            IsAcknowledged = result.IsAcknowledged,
-            ExpectedRecordCount = 1,
-            ActualRecordCount = result.ModifiedCount
-        };
+        return result.ToMongoTransactionResult();
     }
 
     /// <summary>
@@ -138,18 +161,12 @@ public class MongoDbRepo<TEntity> : IMongoDbRepo<TEntity> where TEntity : class
     /// <param name="filter">Filter Definition query</param>
     /// <param name="update">Update Definition</param>
     /// <returns><see cref="MongoTransactionResult"/> results of the Update operation</returns>
-    public async virtual Task<MongoTransactionResult> UpdateOneAsync(string collectionName, FilterDefinition<TEntity> filter, UpdateDefinition<TEntity> update)
+    public async Task<MongoTransactionResult> UpdateOneAsync(string collectionName, FilterDefinition<TEntity> filter, UpdateDefinition<TEntity> update)
     {
         var collection = _database.GetCollection<TEntity>(collectionName);
 
         UpdateResult result = await collection.UpdateOneAsync(filter, update);
-        return new MongoTransactionResult
-        {
-            TransactionRun = true,
-            IsAcknowledged = result.IsAcknowledged,
-            ExpectedRecordCount = 1,
-            ActualRecordCount = result.ModifiedCount
-        };
+        return result.ToMongoTransactionResult();
     }
 
     /// <summary>
@@ -162,7 +179,7 @@ public class MongoDbRepo<TEntity> : IMongoDbRepo<TEntity> where TEntity : class
     /// <param name="filter">Filter Definition query</param>
     /// <param name="updates">Collection of Update Definitions for a model</param>
     /// <returns><see cref="MongoTransactionResult"/> results of the Update operation</returns>
-    public async virtual Task<MongoTransactionResult> UpdateOneAsync(string collectionName, FilterDefinition<TEntity> filter, List<UpdateDefinition<TEntity>> updates)
+    public async Task<MongoTransactionResult> UpdateOneAsync(string collectionName, FilterDefinition<TEntity> filter, List<UpdateDefinition<TEntity>> updates)
     {
         if (updates.Count == 0)
         {
@@ -183,18 +200,12 @@ public class MongoDbRepo<TEntity> : IMongoDbRepo<TEntity> where TEntity : class
     /// <param name="collectionName">Name of the Collection</param>
     /// <param name="filter">Filter Definition query</param>
     /// <returns><see cref="MongoTransactionResult"/> results of the Delete operation</returns>
-    public async virtual Task<MongoTransactionResult> DeleteOneAsync(string collectionName, FilterDefinition<TEntity> filter)
+    public async Task<MongoTransactionResult> DeleteOneAsync(string collectionName, FilterDefinition<TEntity> filter)
     {
         var collection = _database.GetCollection<TEntity>(collectionName);
 
         DeleteResult result = await collection.DeleteOneAsync(filter);
-        return new MongoTransactionResult
-        {
-            TransactionRun = true,
-            IsAcknowledged = result.IsAcknowledged,
-            ExpectedRecordCount = 1,
-            ActualRecordCount = result.DeletedCount
-        };
+        return result.ToMongoTransactionResult(1);
     }
 
     /// <summary>
@@ -204,17 +215,11 @@ public class MongoDbRepo<TEntity> : IMongoDbRepo<TEntity> where TEntity : class
     /// <param name="expectedRecords">Expected Number of Records to remove</param>
     /// <param name="filter">Filter Definition query</param>
     /// <returns><see cref="MongoTransactionResult"/> results of the Delete operation</returns>
-    public async virtual Task<MongoTransactionResult> DeleteManyAsync(string collectionName, long expectedRecords, FilterDefinition<TEntity> filter)
+    public async Task<MongoTransactionResult> DeleteManyAsync(string collectionName, long expectedRecords, FilterDefinition<TEntity> filter)
     {
         var collection = _database.GetCollection<TEntity>(collectionName);
 
         DeleteResult result = await collection.DeleteManyAsync(filter);
-        return new MongoTransactionResult
-        {
-            TransactionRun = true,
-            IsAcknowledged = result.IsAcknowledged,
-            ExpectedRecordCount = expectedRecords,
-            ActualRecordCount = result.DeletedCount
-        };
+        return result.ToMongoTransactionResult(expectedRecords);
     }
 }

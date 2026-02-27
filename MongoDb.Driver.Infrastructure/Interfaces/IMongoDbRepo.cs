@@ -23,6 +23,18 @@ public interface IMongoDbRepo<TEntity> where TEntity : class
     Task<IEnumerable<TEntity>> GetManyAsync(string collectionName, FilterDefinition<TEntity> filter);
 
     /// <summary>
+    /// Gets a paginated collection of entities
+    /// </summary>
+    /// <param name="collectionName">Name of the Collection</param>
+    /// <param name="filter">Filter Definition query</param>
+    /// <param name="pagination">Pagination parameters</param>
+    /// <remarks>
+    /// Uses Offset pagination implementation
+    /// </remarks>
+    /// <returns>Paginated collection of entities matching <paramref name="filter"/></returns>
+    Task<PaginationResponse<TEntity>> GetManyAsync(string collectionName, FilterDefinition<TEntity> filter, PaginationQueryParametersBO pagination);
+
+    /// <summary>
     /// Get a single instance of an entity
     /// </summary>
     /// <param name="collectionName">Name of the Collection</param>

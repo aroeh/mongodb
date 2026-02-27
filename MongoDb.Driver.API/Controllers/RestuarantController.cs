@@ -18,12 +18,12 @@ public class RestuarantController(ILogger<RestuarantController> log, IRestuarant
     /// List restuarants
     /// </summary>
     /// <param name="queryParameters">Optional - Query parameters to filter restuarants</param>
-    /// <returns>List of restuarants matching <paramref name="queryParameters"/></returns>
+    /// <returns>Paginated list of restuarants matching <paramref name="queryParameters"/></returns>
     [HttpGet]
     public async Task<IResult> ListRestuarants([FromQuery] FilterQueryParameters queryParameters)
     {
         _logger.LogInformation("Find restuarants request received");
-        List<RestuarantBO> restuarants = await _orchestration.ListRestuarants(queryParameters.ToFilterQueryParametersBO());
+        PaginationResponse<RestuarantBO> restuarants = await _orchestration.ListRestuarants(queryParameters.ToFilterQueryParametersBO());
 
         return TypedResults.Ok(restuarants);
     }

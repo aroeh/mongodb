@@ -8,8 +8,8 @@ public interface IRestuarantRepo
     /// Query restuarants
     /// </summary>
     /// <param name="queryParameters">Optional - Query parameters to filter restuarants</param>
-    /// <returns>Collection of available restuarant records.  Returns empty list if there are no records found matching criteria</returns>
-    Task<List<RestuarantBO>> QueryRestuarants(FilterQueryParametersBO queryParameters);
+    /// <returns>Paginated collection of restuarant records matching <paramref name="queryParameters"/></returns>
+    Task<PaginationResponse<RestuarantBO>> QueryRestuarants(FilterQueryParametersBO queryParameters);
 
     /// <summary>
     /// Get restuarant by id

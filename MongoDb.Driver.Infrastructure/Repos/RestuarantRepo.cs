@@ -23,14 +23,14 @@ public class RestuarantRepo
     /// Query restuarants
     /// </summary>
     /// <param name="queryParameters">Optional - Query parameters to filter restuarants</param>
-    /// <returns>Collection of available restuarant records.  Returns empty list if there are no records found matching criteria</returns>
-    public async Task<List<RestuarantBO>> QueryRestuarants(FilterQueryParametersBO queryParameters)
+    /// <returns>Paginated collection of restuarant records matching <paramref name="queryParameters"/></returns>
+    public async Task<PaginationResponse<RestuarantBO>> QueryRestuarants(FilterQueryParametersBO queryParameters)
     {
         FilterDefinition<RestuarantDocument> filter = ConfigureFilter(queryParameters);
 
         _logger.LogInformation("Querying restuarants");
-        var restuarants = await _mongo.GetManyAsync(_collection, filter);
-        return [.. restuarants.Select(_ => _.ToRestuarant())];
+        var results = await _mongo.GetManyAsync(_collection, filter, queryParameters);
+        return new PaginationResponse<RestuarantBO>([.. results.Data.Select(_ => _.ToRestuarant())], results.MetaData);
     }
 
     private static FilterDefinition<RestuarantDocument> ConfigureFilter(FilterQueryParametersBO queryParameters)

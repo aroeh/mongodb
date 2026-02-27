@@ -4,4 +4,4 @@ public record FilterQueryParametersBO
 (
     string[]? Names,
     string? CuisineType
-);
+) : PaginationQueryParametersBO;

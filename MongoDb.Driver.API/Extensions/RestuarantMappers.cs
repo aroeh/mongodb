@@ -10,7 +10,11 @@ internal static class RestuarantMappers
         return new FilterQueryParametersBO(
             parameters.Names,
             parameters.CuisineType
-        );
+        )
+        {
+            Page = parameters.Page ?? 1,
+            PageSize = parameters.PageSize ?? 25
+        };
     }
 
     internal static CreateRestuarantRequestBO ToCreateRestuarantRequestBO(this CreateRestuarantRequest request)

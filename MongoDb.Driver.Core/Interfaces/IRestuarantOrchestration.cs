@@ -8,8 +8,8 @@ public interface IRestuarantOrchestration
     /// List restuarants
     /// </summary>
     /// <param name="queryParameters">Optional - Query parameters to filter restuarants</param>
-    /// <returns>List of restuarants matching <paramref name="queryParameters"/></returns>
-    Task<List<RestuarantBO>> ListRestuarants(FilterQueryParametersBO queryParameters);
+    /// <returns>Paginated list of restuarants matching <paramref name="queryParameters"/></returns>
+    Task<PaginationResponse<RestuarantBO>> ListRestuarants(FilterQueryParametersBO queryParameters);
 
     /// <summary>
     /// Get restuarant by id

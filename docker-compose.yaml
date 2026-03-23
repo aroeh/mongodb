@@ -23,7 +23,7 @@ services:
       context: .
       dockerfile: MongoDb.Driver.API/Dockerfile
     ports:
-      - 5197:80
+      - 5017:80
     depends_on:
       - mongo
     environment:

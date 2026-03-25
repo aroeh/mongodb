@@ -1,6 +1,7 @@
 <Solution>
-  <Project Path="MongoDb.Driver.API/MongoDb.Driver.API.csproj" />
-  <Project Path="MongoDb.Driver.Core/MongoDb.Driver.Core.csproj" />
-  <Project Path="MongoDb.Driver.Infrastructure/MongoDb.Driver.Infrastructure.csproj" />
-  <Project Path="MongoDb.Driver.Shared/MongoDb.Driver.Shared.csproj" />
+  <Project Path="Demo.Restuarants.API.Models/Demo.Restuarants.API.Models.csproj" />
+  <Project Path="Demo.Restuarants.API/Demo.Restuarants.API.csproj" />
+  <Project Path="Demo.Restuarants.Core/Demo.Restuarants.Core.csproj" />
+  <Project Path="Demo.Restuarants.Infrastructure.MongoDb/Demo.Restuarants.Infrastructure.MongoDb.csproj" />
+  <Project Path="Demo.Restuarants.Shared/Demo.Restuarants.Shared.csproj" />
 </Solution>

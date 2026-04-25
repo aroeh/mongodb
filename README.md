@@ -174,6 +174,7 @@ docker network connect my_api_container
 # References
 - [MongoDB](https://www.mongodb.com/)
 - [MongoDb Docker](https://hub.docker.com/_/mongo)
+- [MongoDb Batch Transactions](https://www.mongodb.com/docs/drivers/csharp/current/crud/transactions/)
 - [Docker Compose CLI](https://docs.docker.com/compose/reference/)
 - [Docker Compose Repo](https://github.com/docker/awesome-compose/tree/master)
 - [Dotnet CLI](https://learn.microsoft.com/en-us/dotnet/core/tools/)

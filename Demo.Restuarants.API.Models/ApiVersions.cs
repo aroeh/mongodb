@@ -2,12 +2,12 @@
 
 public static class ApiVersions
 {
-    public const string Latest = "1.0";
-    public const string QueryParamVersion = "?api-version=1.0";
+    public const string Latest = V1;
+    public const string QueryParamVersion = $"?api-version={Latest}";
 
     public const string V1 = "1.0";
 
     public static string[] AllVersions => [
-        "1.0"
+        V1
     ];
 }

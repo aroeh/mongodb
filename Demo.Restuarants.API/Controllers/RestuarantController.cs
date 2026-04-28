@@ -90,14 +90,14 @@ public class RestuarantController
     /// <param name="id">Id of the Restuarant to update</param>
     /// <param name="request">Restuarant object to update</param>
     /// <param name="cancellationToken">Token for handling cancellation requests</param>
-    /// <returns>Success result</returns>
+    /// <returns>Results of the update transaction</returns>
     [HttpPatch("{id}")]
     public async Task<IResult> UpdateRestuarantAsync([FromRoute] string id, [FromBody] UpdateRestuarantRequest request, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Update restuarant request received");
-        bool success = await _orchestration.UpdateRestuarantAsync(id, request.ToUpdateRestuarantRequestBO(), cancellationToken);
+        TransactionResult results = await _orchestration.UpdateRestuarantAsync(id, request.ToUpdateRestuarantRequestBO(), cancellationToken);
 
-        return TypedResults.Ok(success);
+        return TypedResults.Ok(results);
     }
 
     /// <summary>
